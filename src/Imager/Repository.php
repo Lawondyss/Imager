@@ -69,6 +69,44 @@ class Repository
    */
   public function save(ImageInfo $image, $name = null)
   {
+    // thumbnail has source
+    if ($image->hasSource()) {
+      $imageInfo = $this->saveThumbnail($image, $name);
+    } else {
+      $imageInfo = $this->saveSource($image, $name);
+    }
+
+    return $imageInfo;
+  }
+
+
+  /**
+   * Save (copy and remove) image to new image in source directory
+   *
+   * @param \Imager\ImageInfo $image
+   * @param null|string $name
+   * @return \Imager\ImageInfo
+   */
+  public function saveSource(ImageInfo $image, $name = null)
+  {
+    $name = $name ?: $this->makeName($image);
+    $target = $this->getSourcePath($name);
+
+    FileSystem::rename($image->getPathname(), $target);
+
+    return new ImageInfo($target);
+  }
+
+
+  /**
+   * Save (copy and remove) image to new image in target directory
+   *
+   * @param \Imager\ImageInfo $image
+   * @param null|string $name
+   * @return \Imager\ImageInfo
+   */
+  public function saveThumbnail(ImageInfo $image, $name = null)
+  {
     $name = $name ?: $this->makeName($image);
     $target = $this->getThumbnailPath($name);
 
