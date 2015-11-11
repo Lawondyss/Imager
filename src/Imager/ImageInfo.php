@@ -100,4 +100,15 @@ class ImageInfo extends \SplFileInfo
     return $this->source;
   }
 
+
+  /**
+   * Returns is exists source
+   *
+   * @return bool
+   */
+  public function hasSource()
+  {
+    return isset($this->source);
+  }
+
 }
