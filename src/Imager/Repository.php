@@ -13,25 +13,25 @@ class Repository
 {
 
   /** @var string */
-  private $sourceDirectory;
+  private $sourcesDirectory;
 
   /** @var null|string */
-  private $targetDirectory;
+  private $thumbnailsDirectory;
 
 
   /**
-   * @param string $sourceDirectory
-   * @param null|string $targetDirectory
+   * @param string $sourcesDirectory
+   * @param null|string $thumbnailsDirectory
    * @throws \Imager\NotExistsException
    * @throws \Imager\BadPermissionException
    */
-  public function __construct($sourceDirectory, $targetDirectory = null)
+  public function __construct($sourcesDirectory, $thumbnailsDirectory = null)
   {
-    $this->setSourceDirectory($sourceDirectory);
+    $this->setSourcesDirectory($sourcesDirectory);
 
-    // if not target directory defined, then source directory is together target directory
-    $targetDirectory = $targetDirectory ?: $sourceDirectory;
-    $this->setTargetDirectory($targetDirectory);
+    // if not thumbnails directory defined, then directory of sources is together thumbnails directory
+    $thumbnailsDirectory = $thumbnailsDirectory ?: $sourcesDirectory;
+    $this->setThumbnailsDirectory($thumbnailsDirectory);
   }
 
 
@@ -49,7 +49,7 @@ class Repository
       throw new InvalidArgumentException('Name of fetched file cannot be empty.');
     }
 
-    $source = $this->getFetchPath($name);
+    $source = $this->getSourcePath($name);
 
     if (!file_exists($source)) {
       $msg = sprintf('Source image "%s" not exists.', $source);
@@ -70,7 +70,7 @@ class Repository
   public function save(ImageInfo $image, $name = null)
   {
     $name = $name ?: $this->makeName($image);
-    $target = $this->getSavePath($name);
+    $target = $this->getThumbnailPath($name);
 
     FileSystem::rename($image->getPathname(), $target);
 
@@ -79,73 +79,76 @@ class Repository
 
 
   /**
-   * Sets directory for fetch images
+   * Sets directory with sources images
    *
-   * @param string $sourceDirectory
+   * @param string $sourcesDirectory
+   * @throws \Imager\NotExistsException
    */
-  private function setSourceDirectory($sourceDirectory)
+  private function setSourcesDirectory($sourcesDirectory)
   {
-    $sourceDirectory = Strings::trim($sourceDirectory);
-    $sourceDirectory = rtrim($sourceDirectory, '\\/');
+    $sourcesDirectory = Strings::trim($sourcesDirectory);
+    $sourcesDirectory = rtrim($sourcesDirectory, '\\/');
 
-    if (!is_dir($sourceDirectory)) {
-      $msg = sprintf('Source directory "%s" not exists.', $sourceDirectory);
+    if (!is_dir($sourcesDirectory)) {
+      $msg = sprintf('Directory "%s" with sources not exists.', $sourcesDirectory);
       throw new NotExistsException($msg);
     }
 
-    $this->sourceDirectory = $sourceDirectory . DIRECTORY_SEPARATOR;
+    $this->sourcesDirectory = $sourcesDirectory . DIRECTORY_SEPARATOR;
   }
 
 
   /**
-   * Sets directory for save images
+   * Sets directory with thumbnails
    *
    * @param string $targetDirectory
+   * @throws \Imager\NotExistsException
+   * @throws \Imager\BadPermissionException
    */
-  private function setTargetDirectory($targetDirectory)
+  private function setThumbnailsDirectory($targetDirectory)
   {
     $targetDirectory = Strings::trim($targetDirectory);
     $targetDirectory = rtrim($targetDirectory, '\\/');
 
     if (!is_dir($targetDirectory)) {
-      $msg = sprintf('Target directory "%s" not exists.', $targetDirectory);
+      $msg = sprintf('Directory "%s" with thumbnails not exists.', $targetDirectory);
       throw new NotExistsException($msg);
     }
 
     if (!is_writable($targetDirectory)) {
-      $msg = sprintf('Target directory "%" is not writable.', $targetDirectory);
+      $msg = sprintf('Directory "%" with thumbnails is not writable.', $targetDirectory);
       throw new BadPermissionException($msg);
     }
 
-    $this->targetDirectory = $targetDirectory . DIRECTORY_SEPARATOR;
+    $this->thumbnailsDirectory = $targetDirectory . DIRECTORY_SEPARATOR;
   }
 
 
   /**
-   * Returns path for fetch file
+   * Returns path for source image
    *
-   * @param $name
+   * @param string $name
    * @return string
    */
-  private function getFetchPath($name)
+  private function getSourcePath($name)
   {
     $subdirectory = $this->getSubdirectory($name);
-    $path = $this->sourceDirectory . $subdirectory . $name;
+    $path = $this->sourcesDirectory . $subdirectory . $name;
 
     return $path;
   }
 
 
   /**
-   * Returns path for save file
+   * Returns path for thumbnail of image
    *
    * @param string $name
    * @return string
    */
-  private function getSavePath($name)
+  private function getThumbnailPath($name)
   {
     $subdirectory = $this->getSubdirectory($name);
-    $path = $this->targetDirectory . $subdirectory . $name;
+    $path = $this->thumbnailsDirectory . $subdirectory . $name;
 
     return $path;
   }
