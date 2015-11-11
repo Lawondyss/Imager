@@ -92,9 +92,7 @@ class Repository
     $name = $name ?: $this->makeName($image);
     $target = $this->getSourcePath($name);
 
-    FileSystem::rename($image->getPathname(), $target);
-
-    return new ImageInfo($target);
+    return $this->moveImage($image, $target);
   }
 
 
@@ -110,9 +108,7 @@ class Repository
     $name = $name ?: $this->makeName($image);
     $target = $this->getThumbnailPath($name);
 
-    FileSystem::rename($image->getPathname(), $target);
-
-    return new ImageInfo($target);
+    return $this->moveImage($image, $target);
   }
 
 
@@ -159,6 +155,21 @@ class Repository
     }
 
     $this->thumbnailsDirectory = $targetDirectory . DIRECTORY_SEPARATOR;
+  }
+
+
+  /**
+   * Moves image to target
+   *
+   * @param \Imager\ImageInfo $image
+   * @param string $target
+   * @return \Imager\ImageInfo
+   */
+  private function moveImage(ImageInfo $image, $target)
+  {
+    FileSystem::rename($image->getPathname(), $target);
+
+    return new ImageInfo($target);
   }
 
 
