@@ -111,4 +111,15 @@ class ImageInfo extends \SplFileInfo
     return isset($this->source);
   }
 
+
+  /**
+   * Returns content of image
+   *
+   * @return string
+   */
+  public function getContent()
+  {
+    return file_get_contents($this->getPathname());
+  }
+
 }
