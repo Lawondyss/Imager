@@ -44,4 +44,23 @@ class Helpers
     return $arguments;
   }
 
+  /**
+   * @param \Nette\Application\IRouter $router
+   * @param \Nette\Application\Routers\Route $route
+   * @throws \Imager\InvalidArgumentException
+   */
+  public static function prependRouter(IRouter &$router, Route $route)
+  {
+    if (!$router instanceof RouteList) {
+      $msg = sprintf('Router must be an instance of Nette\Application\Routers\RouterList, "%s" given.', get_class($router));
+      throw new InvalidArgumentException($msg);
+    }
+
+    $tmpRouter = [$route];
+    foreach ($router as $mask) {
+      $tmpRouter[] = $mask;
+    }
+    $router = $tmpRouter;
+  }
+
 }
