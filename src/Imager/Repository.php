@@ -128,6 +128,11 @@ class Repository
       throw new NotExistsException($msg);
     }
 
+    if (!is_writable($sourcesDirectory)) {
+      $msg = sprintf('Directory "%s" with sources is not writable.', $sourcesDirectory);
+      throw new BadPermissionException($msg);
+    }
+
     $this->sourcesDirectory = $sourcesDirectory . DIRECTORY_SEPARATOR;
   }
 
