@@ -13,13 +13,11 @@ class Extension extends CompilerExtension
 {
 
   /** @var array */
-  private $expected = ['sourcesDir', 'routes'];
+  private $required = ['sourcesDir', 'routes'];
 
   /** @var array */
   private $defaults = [
-      'sourcesDir' => null,
       'thumbsDir' => null,
-      'routes' => [],
   ];
 
 
@@ -69,7 +67,7 @@ class Extension extends CompilerExtension
     $config = $config ?: [];
 
     /* Check required options */
-    $missing = array_diff($this->expected, array_keys($config));
+    $missing = array_diff($this->required, array_keys($config));
 
     if (count($missing) > 0) {
       array_walk($missing, function (&$item) {
