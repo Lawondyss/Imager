@@ -135,26 +135,26 @@ class Repository
   /**
    * Sets directory with thumbnails
    *
-   * @param string $targetDirectory
+   * @param string $thumbnailsDirectory
    * @throws \Imager\NotExistsException
    * @throws \Imager\BadPermissionException
    */
-  private function setThumbnailsDirectory($targetDirectory)
+  private function setThumbnailsDirectory($thumbnailsDirectory)
   {
-    $targetDirectory = Strings::trim($targetDirectory);
-    $targetDirectory = rtrim($targetDirectory, '\\/');
+    $thumbnailsDirectory = Strings::trim($thumbnailsDirectory);
+    $thumbnailsDirectory = rtrim($thumbnailsDirectory, '\\/');
 
-    if (!is_dir($targetDirectory)) {
-      $msg = sprintf('Directory "%s" with thumbnails not exists.', $targetDirectory);
+    if (!is_dir($thumbnailsDirectory)) {
+      $msg = sprintf('Directory "%s" with thumbnails not exists.', $thumbnailsDirectory);
       throw new NotExistsException($msg);
     }
 
-    if (!is_writable($targetDirectory)) {
-      $msg = sprintf('Directory "%" with thumbnails is not writable.', $targetDirectory);
+    if (!is_writable($thumbnailsDirectory)) {
+      $msg = sprintf('Directory "%s" with thumbnails is not writable.', $thumbnailsDirectory);
       throw new BadPermissionException($msg);
     }
 
-    $this->thumbnailsDirectory = $targetDirectory . DIRECTORY_SEPARATOR;
+    $this->thumbnailsDirectory = $thumbnailsDirectory . DIRECTORY_SEPARATOR;
   }
 
 
