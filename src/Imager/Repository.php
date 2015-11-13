@@ -18,6 +18,14 @@ class Repository
   /** @var null|string */
   private $thumbnailsDirectory;
 
+  /** @var array */
+  private $extentions = [
+      IMAGETYPE_GIF => '.gif',
+      IMAGETYPE_JPEG => '.jpg',
+      IMAGETYPE_PNG => '.png',
+      IMAGETYPE_BMP => '.bmp',
+  ];
+
 
   /**
    * @param string $sourcesDirectory
@@ -231,8 +239,22 @@ class Repository
     $source = $image->getSource() ?: $image;
 
     $name = md5($source->getPathname());
-    $res = '_' . $image->getWidth() . 'x' . $image->getHeight();
-    $ext = '.' . $source->getExtension();
+
+    // resolution of image only for thumbnail (has source)
+    $res = !$image->hasSource() ? '' : ('_' . $image->getWidth() . 'x' . $image->getHeight());
+
+    if ($source->getExtension() !== '') {
+      $ext = '.' . $source->getExtension();
+
+    } else {
+      if (!array_key_exists($source->getType(), $this->extentions)) {
+        $msg = sprintf('Image "%s" is unsupported type.', $source->getFilename());
+        throw new InvalidStateException($msg);
+      }
+
+      $ext = $this->extentions[$source->getType()];
+    }
+
     $fileName = $name . $res . $ext;
 
     return $fileName;
