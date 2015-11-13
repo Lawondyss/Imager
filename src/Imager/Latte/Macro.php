@@ -14,21 +14,27 @@ use Latte\PhpWriter;
 class Macro extends MacroSet
 {
 
-  public static function install(Compiler $parser)
+  /** @var string */
+  public static $baseUrl;
+
+
+  public static function install(Compiler $parser, $baseUrl = null)
   {
+    self::$baseUrl = $baseUrl;
+
     $me = new static($parser);
     $me->addMacro('src',
         function (MacroNode $node, PhpWriter $writer) use ($me) {
-          return $me->macroSrc($node, $writer);
+          return $me->macroSrc($writer);
         }, null,
         function (MacroNode $node, PhpWriter $writer) use ($me) {
-          return ' ?> src="<?php ' . $me->macroSrc($node, $writer) . ' ?>"<?php ';
+          return ' ?> src="<?php ' . $me->macroSrc($writer) . ' ?>"<?php ';
         }
     );
   }
 
 
-  public function macroSrc(MacroNode $node, PhpWriter $writer)
+  public function macroSrc(PhpWriter $writer)
   {
     $code = self::getCode('%node.array');
 
@@ -48,7 +54,7 @@ class Macro extends MacroSet
   public static function getCode($parametersCode)
   {
     $code = [];
-    $code[] = '$imgBaseUrl = rtrim($presenter->context->parameters["images"]["baseUrl"], "/");';
+    $code[] = '$imgBaseUrl = rtrim("' . self::$baseUrl . '", "/");';
     $code[] = '$destination = (empty($imgBaseUrl) ? "//" : "" ) . ":Nette:Micro:";';
     $code[] = '$link = $presenter->link($destination, Imager\Helpers::prepareArguments(' . $parametersCode . '));';
     $code[] = '$stripPos = substr($link, 0, 4) === "http" ? strpos($link, "/", 10) : 0;';

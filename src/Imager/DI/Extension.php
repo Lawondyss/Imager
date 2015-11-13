@@ -17,14 +17,19 @@ class Extension extends CompilerExtension
 
   /** @var array */
   private $defaults = [
+      'sourcesDir' => null,
       'thumbsDir' => null,
+      'routes' => [],
+      'baseUrl' => null,
   ];
 
 
   public function loadConfiguration()
   {
-    $config = $this->getConfig($this->defaults);
+    $config = $this->getConfig();
     $this->configValidation($config);
+
+    $config = array_merge($this->defaults, $config);
 
     $builder = $this->getContainerBuilder();
 
@@ -53,6 +58,10 @@ class Extension extends CompilerExtension
 
       $router->addSetup('Imager\Helpers::prependRouter', ['@self', $this->prefix('@route.' . $i)]);
     }
+
+    $latteName = $builder->hasDefinition('latte.latteFactory') ? 'latte.latteFactory' : 'latte.latte';
+    $latte = $builder->getDefinition($latteName);
+    $latte->addSetup('\Imager\Latte\Macro::install(?->getCompiler(), ?)', ['@self', $config['baseUrl']]);
   }
 
 
