@@ -181,6 +181,7 @@ class Repository
   private function moveImage(ImageInfo $image, $target)
   {
     FileSystem::rename($image->getPathname(), $target);
+    chmod($target, 0666);
 
     return new ImageInfo($target);
   }
