@@ -8,7 +8,6 @@ namespace Imager\DI;
 
 use Imager\InvalidStateException;
 use Nette\DI\CompilerExtension;
-use Nette\Utils\Validators;
 
 class Extension extends CompilerExtension
 {
@@ -27,7 +26,7 @@ class Extension extends CompilerExtension
   public function loadConfiguration()
   {
     $config = $this->getConfig($this->defaults);
-    $this->validateConfig($config);
+    $this->configValidation($config);
 
     $builder = $this->getContainerBuilder();
 
@@ -42,7 +41,6 @@ class Extension extends CompilerExtension
   }
 
 
-  /**/
   public function beforeCompile()
   {
     $config = $this->getConfig($this->defaults);
@@ -63,10 +61,10 @@ class Extension extends CompilerExtension
   /**
    * Checks configurations options
    *
-   * @param array|null $config
+   * @param array $config
    * @throws \Imager\InvalidStateException
    */
-  public function validateConfig(array $config = null)
+  public function configValidation(array $config)
   {
     $config = $config ?: [];
 
