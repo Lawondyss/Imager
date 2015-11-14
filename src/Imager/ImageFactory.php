@@ -9,6 +9,10 @@ namespace Imager;
 class ImageFactory
 {
 
+  /** @var \Imager\Tracy\Panel */
+  private $panel;
+
+
   /**
    * Returns instance of \Imager\Image
    *
@@ -17,6 +21,22 @@ class ImageFactory
    */
   public function create(ImageInfo $image)
   {
-    return new Image($image);
+    $image = new Image($image);
+
+    if (isset($this->panel)) {
+      $image->injectPanel($this->panel);
+    }
+
+    return $image;
+  }
+
+
+  /**
+   * @internal
+   * @param \Imager\Tracy\Panel $panel
+   */
+  public function setPanel(Tracy\Panel $panel)
+  {
+    $this->panel = $panel;
   }
 }

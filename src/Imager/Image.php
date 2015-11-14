@@ -19,6 +19,9 @@ class Image
   /** @var \Imager\ImageInfo */
   private $image;
 
+  /** @var \Imager\Tracy\Panel */
+  private $panel;
+
 
   /**
    * @param \Imager\ImageInfo $image
@@ -57,7 +60,23 @@ class Image
     $command = sprintf('convert %s %s %s', $source, $options, $target);
     $this->run($command);
 
-    return new ImageInfo($target, $this->image);
+    $imageInfo = new ImageInfo($target, $this->image);
+
+    if (isset($this->panel)) {
+      $this->panel->addImage($imageInfo);
+    }
+
+    return $imageInfo;
+  }
+
+
+  /**
+   * @internal
+   * @param \Imager\Tracy\Panel $panel
+   */
+  public function injectPanel(Tracy\Panel $panel)
+  {
+    $this->panel = $panel;
   }
 
 

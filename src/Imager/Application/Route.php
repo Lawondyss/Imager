@@ -36,7 +36,7 @@ class Route extends Application\Routers\Route
   {
     $url = $request->getUrl();
 
-    if (!Strings::contains($url->path, $this->basePath)) {
+    if (Strings::contains($url->path, $this->basePath) === false) {
       return;
     }
 
@@ -51,6 +51,7 @@ class Route extends Application\Routers\Route
 
     $id = $name . $ext;
     $height = $height !== '' ? $height : null;
+    // if not defined width and height, then default size is original
     $width = $width !== '' ? $width : (!isset($height) ? 0 : null);
 
     $url->setQueryParameter('id', $id)

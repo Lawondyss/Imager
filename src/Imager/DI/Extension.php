@@ -21,6 +21,7 @@ class Extension extends CompilerExtension
       'thumbsDir' => null,
       'baseUrl' => null,
       'basePath' => null,
+      'debugger' => '%debugMode%',
   ];
 
 
@@ -39,8 +40,15 @@ class Extension extends CompilerExtension
             $config['thumbsDir'],
         ]);
 
-    $builder->addDefinition($this->prefix('imageFactory'))
+    $imageFactory = $builder->addDefinition($this->prefix('imageFactory'))
         ->setClass(\Imager\ImageFactory::class);
+
+    if ($config['debugger'] && interface_exists(\Tracy\IBarPanel::class)) {
+      $builder->addDefinition($this->prefix('panel'))
+        ->setClass(\Imager\Tracy\Panel::class);
+
+      $imageFactory->addSetup('?->register(?)', [$this->prefix('@panel'), '@self']);
+    }
   }
 
 
