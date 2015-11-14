@@ -50,8 +50,8 @@ class Route extends Application\Routers\Route
     list(, $name, $width, $height, $ext) = $matches;
 
     $id = $name . $ext;
-    $width = $width !== '' ? $width : 0;
     $height = $height !== '' ? $height : null;
+    $width = $width !== '' ? $width : (!isset($height) ? 0 : null);
 
     $url->setQueryParameter('id', $id)
         ->setQueryParameter('width', $width)
