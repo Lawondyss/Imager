@@ -6,35 +6,85 @@
 
 namespace Imager\Application;
 
-use Imager\ImageFactory;
-use Imager\InvalidArgumentException;
-use Imager\Repository;
-use Nette\Application\Routers\Route as NRoute;
-use Nette\Application\UI\Presenter;
+use Imager;
+use Nette\Application;
+use Nette\Http;
+use Nette\Utils\Strings;
 
-class Route extends NRoute
+class Route extends Application\Routers\Route
 {
 
-  public function __construct(Repository $repository, ImageFactory $factory, $mask)
+  /** @var \Imager\Repository */
+  private $repository;
+
+  /** @var \Imager\ImageFactory */
+  private $imageFactory;
+
+  /** @var string */
+  private $basePath;
+
+
+  public function __construct(Imager\Repository $repository, Imager\ImageFactory $imageFactory, $basePath)
   {
-    $metadata = [
-        'presenter' => 'Nette:Micro',
-        'callback' => function (Presenter $presenter) use ($repository, $factory) {
-          $params = $presenter->request->parameters;
+    $this->repository = $repository;
+    $this->imageFactory = $imageFactory;
+    $this->basePath = rtrim($basePath, '/') . '/';
+  }
 
-          if (!isset($params['id'])) {
-            $msg = sprintf('Missing parameter "id", parameters "%s" given.', http_build_query($params, null, ', '));
-            throw new InvalidArgumentException($msg);
-          }
 
-          $id = $params['id'];
-          $width = isset($params['width']) ? $params['width'] : null;
-          $height = isset($params['height']) ? $params['height'] : null;
+  public function match(Http\IRequest $request)
+  {
+    $url = $request->getUrl();
 
-          return new ImageResponse($repository, $factory, $id, $width, $height);
-        },
-    ];
+    if (!Strings::contains($url->path, $this->basePath)) {
+      return;
+    }
 
-    parent::__construct($mask, $metadata);
+    $imgUrl = Strings::after($url->path, $this->basePath);
+    $imgUrl = Strings::after($imgUrl, '/', -1);
+    $matches = Strings::match($imgUrl, '~^([^_]+)_?([\d]*)x?([\d]*)(\.[a-z]+)$~i');
+
+    if (!isset($matches)) {
+      return;
+    }
+    list(, $name, $width, $height, $ext) = $matches;
+
+    $id = $name . $ext;
+    $width = $width !== '' ? $width : 0;
+    $height = $height !== '' ? $height : null;
+
+    $url->setQueryParameter('id', $id)
+        ->setQueryParameter('width', $width)
+        ->setQueryParameter('height', $height);
+
+    $response = new ImageResponse($this->repository, $this->imageFactory);
+    $response->send(new Http\Request($url), new Http\Response);
+  }
+
+
+  public function constructUrl(Application\Request $request, Http\Url $url)
+  {
+    if ($request->getPresenterName() !== 'Nette:Micro') {
+      return;
+    }
+
+    $id = $request->getParameter('id');
+    $parts = explode('.', $id);
+    $extension = '.' . array_pop($parts);
+    $name = implode('.', $parts);
+    $width = $request->getParameter('width');
+    $height = $request->getParameter('height');
+
+    if (isset($width) && isset($height)) {
+      $dimension = '_' . $width . 'x' . $height;
+    } elseif (isset($width)) {
+      $dimension = '_' . $width;
+    } elseif (isset($height)) {
+      $dimension = '_x' . $height;
+    } else {
+      $dimension = '';
+    }
+
+    return $this->basePath . Imager\Helpers::getSubPath($id) . $name . $dimension . $extension;
   }
 }

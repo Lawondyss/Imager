@@ -13,14 +13,14 @@ class Extension extends CompilerExtension
 {
 
   /** @var array */
-  private $required = ['sourcesDir', 'routes'];
+  private $required = ['sourcesDir', 'basePath'];
 
   /** @var array */
   private $defaults = [
       'sourcesDir' => null,
       'thumbsDir' => null,
-      'routes' => [],
       'baseUrl' => null,
+      'basePath' => null,
   ];
 
 
@@ -49,15 +49,12 @@ class Extension extends CompilerExtension
     $config = $this->getConfig($this->defaults);
     $builder = $this->getContainerBuilder();
 
+    $builder->addDefinition($this->prefix('route'))
+        ->setClass(\Imager\Application\Route::class, [$this->prefix('@repository'), $this->prefix('@imageFactory'), $config['basePath']])
+        ->setAutowired(false);
+
     $router = $builder->getDefinition('router');
-
-    foreach ($config['routes'] as $i => $mask) {
-      $builder->addDefinition($this->prefix('route.' . $i))
-          ->setClass(\Imager\Application\Route::class, [$this->prefix('@repository'), $this->prefix('@imageFactory'), $mask])
-          ->setAutowired(false);
-
-      $router->addSetup('Imager\Helpers::prependRouter', ['@self', $this->prefix('@route.' . $i)]);
-    }
+    $router->addSetup('Imager\Helpers::prependRouter', ['@self', $this->prefix('@route')]);
 
     $latteName = $builder->hasDefinition('latte.latteFactory') ? 'latte.latteFactory' : 'latte.latte';
     $latte = $builder->getDefinition($latteName);

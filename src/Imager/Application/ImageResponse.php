@@ -22,32 +22,26 @@ class ImageResponse implements IResponse
   /** @var \Imager\ImageFactory */
   private $factory;
 
-  /** @var string */
-  private $id;
 
-  /** @var null|int */
-  private $width;
-
-  /** @var null|int */
-  private $height;
-
-
-  public function __construct(Repository $repository, ImageFactory $factory, $id, $width, $height)
+  public function __construct(Repository $repository, ImageFactory $factory)
   {
     $this->repository = $repository;
     $this->factory = $factory;
-    $this->id = $id;
-    $this->width = $width;
-    $this->height = $height;
   }
 
 
   public function send(HttpRequest $request, HttpResponse $response)
   {
     try {
-      $source = $this->repository->fetch($this->id);
+      $url = $request->getUrl();
 
-      $thumb = $this->factory->create($source)->resize($this->width, $this->height);
+      $id = $url->getQueryParameter('id');
+      $width = $url->getQueryParameter('width');
+      $height = $url->getQueryParameter('height');
+
+      $source = $this->repository->fetch($id);
+
+      $thumb = $this->factory->create($source)->resize($width, $height);
       $thumb = $this->repository->save($thumb);
 
       $response->setContentType($thumb->getMime());

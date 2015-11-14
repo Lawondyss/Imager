@@ -18,14 +18,6 @@ class Repository
   /** @var null|string */
   private $thumbnailsDirectory;
 
-  /** @var array */
-  private $extentions = [
-      IMAGETYPE_GIF => '.gif',
-      IMAGETYPE_JPEG => '.jpg',
-      IMAGETYPE_PNG => '.png',
-      IMAGETYPE_BMP => '.bmp',
-  ];
-
 
   /**
    * @param string $sourcesDirectory
@@ -97,7 +89,7 @@ class Repository
    */
   public function saveSource(ImageInfo $image, $name = null)
   {
-    $name = $name ?: $this->makeName($image);
+    $name = $name ?: Helpers::makeName($image);
     $target = $this->getSourcePath($name);
 
     return $this->moveImage($image, $target);
@@ -113,7 +105,7 @@ class Repository
    */
   public function saveThumbnail(ImageInfo $image, $name = null)
   {
-    $name = $name ?: $this->makeName($image);
+    $name = $name ?: Helpers::makeName($image);
     $target = $this->getThumbnailPath($name);
 
     return $this->moveImage($image, $target);
@@ -195,10 +187,7 @@ class Repository
    */
   private function getSourcePath($name)
   {
-    $subdirectory = $this->getSubdirectory($name);
-    $path = $this->sourcesDirectory . $subdirectory . $name;
-
-    return $path;
+    return $this->sourcesDirectory . Helpers::getSubPath($name) . $name;
   }
 
 
@@ -210,55 +199,7 @@ class Repository
    */
   private function getThumbnailPath($name)
   {
-    $subdirectory = $this->getSubdirectory($name);
-    $path = $this->thumbnailsDirectory . $subdirectory . $name;
-
-    return $path;
-  }
-
-
-  /**
-   * Returns subdirectory by name for greater segmentation
-   *
-   * @param string $name
-   * @return string
-   */
-  private function getSubdirectory($name)
-  {
-    return Strings::substring($name, 0, 2) . DIRECTORY_SEPARATOR;
-  }
-
-
-  /**
-   * Returns generated name for a image
-   *
-   * @param \Imager\ImageInfo $image
-   * @return string
-   */
-  private function makeName(ImageInfo $image)
-  {
-    $source = $image->getSource() ?: $image;
-
-    $name = md5($source->getPathname());
-
-    // resolution of image only for thumbnail (has source)
-    $res = !$image->hasSource() ? '' : ('_' . $image->getWidth() . 'x' . $image->getHeight());
-
-    if ($source->getExtension() !== '') {
-      $ext = '.' . $source->getExtension();
-
-    } else {
-      if (!array_key_exists($source->getType(), $this->extentions)) {
-        $msg = sprintf('Image "%s" is unsupported type.', $source->getFilename());
-        throw new InvalidStateException($msg);
-      }
-
-      $ext = $this->extentions[$source->getType()];
-    }
-
-    $fileName = $name . $res . $ext;
-
-    return $fileName;
+    return $this->thumbnailsDirectory . Helpers::getSubPath($name) . $name;
   }
 
 }

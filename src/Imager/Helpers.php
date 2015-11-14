@@ -9,6 +9,7 @@ namespace Imager;
 use Nette\Application\IRouter;
 use Nette\Application\Routers\Route;
 use Nette\Application\Routers\RouteList;
+use Nette\Utils\Strings;
 
 class Helpers
 {
@@ -34,15 +35,9 @@ class Helpers
       }
     }
 
-    if (!isset($arguments['width'])) {
-      $arguments['width'] = 0;
-    }
-    if (!isset($arguments['height'])) {
-      $arguments['height'] = 0;
-    }
-
     return $arguments;
   }
+
 
   /**
    * @param \Nette\Application\IRouter $router
@@ -56,11 +51,72 @@ class Helpers
       throw new InvalidArgumentException($msg);
     }
 
-    $tmpRouter = [$route];
-    foreach ($router as $mask) {
-      $tmpRouter[] = $mask;
+    // adds route for correct number of routes
+    $router[] = $route;
+    $lastIndex = count($router) - 1;
+
+    foreach ($router as $i => $mask) {
+      // last route must be first
+      if ($i == $lastIndex) {
+        break;
+      }
+      $router[$i + 1] = $mask;
     }
-    $router = $tmpRouter;
+
+    // adds route to first position
+    $router[0] = $route;
   }
 
+
+
+  /**
+   * Returns sub-path for greater segmentation
+   *
+   * @param string $name
+   * @return string
+   */
+  public static function getSubPath($name)
+  {
+    return Strings::substring($name, 0, 2) . DIRECTORY_SEPARATOR;
+  }
+
+
+  /**
+   * Returns generated name for a image
+   *
+   * @param \Imager\ImageInfo $image
+   * @return string
+   */
+  public static function makeName(ImageInfo $image)
+  {
+    $source = $image->getSource() ?: $image;
+
+    $name = md5($source->getPathname());
+
+    // resolution of image only for thumbnail (has source)
+    $res = !$image->hasSource() ? '' : ('_' . $image->getWidth() . 'x' . $image->getHeight());
+
+    if ($source->getExtension() !== '') {
+      $ext = '.' . $source->getExtension();
+
+    } else {
+      $extentions = [
+          IMAGETYPE_GIF => '.gif',
+          IMAGETYPE_JPEG => '.jpg',
+          IMAGETYPE_PNG => '.png',
+          IMAGETYPE_BMP => '.bmp',
+      ];
+
+      if (!array_key_exists($source->getType(), $extentions)) {
+        $msg = sprintf('Image "%s" is unsupported type.', $source->getFilename());
+        throw new InvalidStateException($msg);
+      }
+
+      $ext = $extentions[$source->getType()];
+    }
+
+    $fileName = $name . $res . $ext;
+
+    return $fileName;
+  }
 }
