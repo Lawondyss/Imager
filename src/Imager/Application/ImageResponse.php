@@ -6,6 +6,7 @@
 
 namespace Imager\Application;
 
+use Imager\Image;
 use Imager\ImageFactory;
 use Imager\NotExistsException;
 use Imager\Repository;
@@ -32,7 +33,11 @@ class ImageResponse implements IResponse
 
   public function send(HttpRequest $request, HttpResponse $response)
   {
+    $width = null;
+    $height = null;
+
     try {
+
       $url = $request->getUrl();
 
       $id = $url->getQueryParameter('id');
@@ -49,7 +54,9 @@ class ImageResponse implements IResponse
       echo $thumb->getContent();
 
     } catch (\Exception $e) {
-      $this->sendError($response, $e);
+      $width = $width ?: 200;
+      $height = $height ?: 200;
+      $this->sendError($response, $e, $width, $height);
     }
   }
 
@@ -60,12 +67,18 @@ class ImageResponse implements IResponse
    * @param \Nette\Http\IResponse $response
    * @param string|\Exception $error
    */
-  private function sendError(HttpResponse $response, $error)
+  private function sendError(HttpResponse $response, $error, $width, $height)
   {
-    $error = ($error instanceof \Exception) ? $error->getMessage() : $error;
-
     $response->setCode(HttpResponse::S500_INTERNAL_SERVER_ERROR);
     $response->setContentType('image/gif');
-    $response->setHeader('Error-Message', $error);
+
+    if (!($error instanceof \Exception)) {
+      $response->setHeader('Error-Message', $error);
+    } else {
+      $response->setHeader('Error-Message', get_class($error) . ': ' . $error->getMessage());
+      $response->setHeader('Error-File', $error->getFile() . ' (' . $error->getLine() . ')');
+    }
+
+    Image::errorImage($width, $height);
   }
 }

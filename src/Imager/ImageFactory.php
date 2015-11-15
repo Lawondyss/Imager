@@ -11,6 +11,8 @@ class ImageFactory
 
   /** @var \Imager\Tracy\Panel */
   private $panel;
+  /** @var bool */
+  public static $showErrorImage;
 
 
   /**

@@ -73,10 +73,30 @@ class Image
   /**
    * @internal
    * @param \Imager\Tracy\Panel $panel
+   * Generate image with error and send to output
+   *
+   * @param int $width
+   * @param int $height
    */
   public function injectPanel(Tracy\Panel $panel)
+  public static function errorImage($width, $height)
   {
     $this->panel = $panel;
+    if (!ImageFactory::$showErrorImage) {
+      return;
+    }
+
+    $command = [
+      'convert',
+      sprintf('-size %dx%d', $width, $height),
+      '-background red',
+      '-gravity center',
+      '-fill black',
+      'label:" Error image generation. \n\n More information \n in headers. "',
+      'gif:-'
+    ];
+    $command = implode(' ', $command);
+    passthru($command);
   }
 
 
