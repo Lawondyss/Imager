@@ -23,4 +23,18 @@ class ImageFactory
   {
     return new Image($image);
   }
+
+
+  /**
+   * Send error image to output
+   *
+   * @param int $width
+   * @param int $height
+   */
+  public function sendErrorImage($width, $height)
+  {
+    if (self::$showErrorImage) {
+      Image::errorImage($width, $height);
+    }
+  }
 }

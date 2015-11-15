@@ -13,6 +13,7 @@ use Imager\Repository;
 use Nette\Application\IResponse;
 use Nette\Http\IRequest as HttpRequest;
 use Nette\Http\IResponse as HttpResponse;
+use Nette\Utils\Strings;
 
 class ImageResponse implements IResponse
 {
@@ -62,7 +63,7 @@ class ImageResponse implements IResponse
 
 
   /**
-   * Send error to image header
+   * Send error to image
    *
    * @param \Nette\Http\IResponse $response
    * @param string|\Exception $error
@@ -73,12 +74,17 @@ class ImageResponse implements IResponse
     $response->setContentType('image/gif');
 
     if (!($error instanceof \Exception)) {
-      $response->setHeader('Error-Message', $error);
+      $response->setHeader('X-Imager-Error-Message', $error);
+
     } else {
-      $response->setHeader('Error-Message', get_class($error) . ': ' . $error->getMessage());
-      $response->setHeader('Error-File', $error->getFile() . ' (' . $error->getLine() . ')');
+      $response->setHeader('X-Imager-Error-Message', get_class($error) . ': ' . $error->getMessage());
+      $response->setHeader('X-Imager-Error-File', $error->getFile() . ' (' . $error->getLine() . ')');
+
+      $trace = $error->getTraceAsString();
+      $trace = Strings::replace($trace, '~[\n|\n\r]~', '>>>');
+      $response->setHeader('X-Imager-Error-Trace', $trace);
     }
 
-    Image::errorImage($width, $height);
+    $this->factory->sendErrorImage($width, $height);
   }
 }

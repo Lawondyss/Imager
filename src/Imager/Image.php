@@ -69,17 +69,13 @@ class Image
    */
   public static function errorImage($width, $height)
   {
-    if (!ImageFactory::$showErrorImage) {
-      return;
-    }
-
     $command = [
       'convert',
       sprintf('-size %dx%d', $width, $height),
       '-background red',
       '-gravity center',
       '-fill black',
-      'label:" Error image generation. \n\n More information \n in headers. "',
+      'label:" Error image generation. \n\n More information \n in image headers. "',
       'gif:-'
     ];
     $command = implode(' ', $command);
