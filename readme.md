@@ -52,4 +52,21 @@ $thumb = $factory->create($imageInfo)->resize(100); // instance of Imager\ImageI
 $thumbImageInfo = $repository->save($thumb); // instance of Imager\ImageInfo with saved thumbnail
 ```
 
+## Nette extension
+For registration Imager as Nette extension is required add this configuration.
+```yaml
+extensions:
+    imager: Imager\DI\Extension
+```
+Extension has this configuration:
+```yaml
+imager:
+    sourcesDir: %cdnDir%/assets # required
+    thumbsDir: %wwwDir%/images/thumbs
+    baseUrl: http://cdn.example.com # if is your images in another URL 
+    basePath: images/thumbs/ # required; adds this path to URL
+    errorImage: on # default on; displays error image if when generating an error occurred
+    debugger: on # default as debugMode; display information in debug bar; WARNING! For everyone image send new request!
+```
+
 [Composer]:https://getcomposer.org/
