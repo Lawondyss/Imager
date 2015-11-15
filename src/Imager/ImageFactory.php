@@ -9,8 +9,6 @@ namespace Imager;
 class ImageFactory
 {
 
-  /** @var \Imager\Tracy\Panel */
-  private $panel;
   /** @var bool */
   public static $showErrorImage;
 
@@ -23,22 +21,6 @@ class ImageFactory
    */
   public function create(ImageInfo $image)
   {
-    $image = new Image($image);
-
-    if (isset($this->panel)) {
-      $image->injectPanel($this->panel);
-    }
-
-    return $image;
-  }
-
-
-  /**
-   * @internal
-   * @param \Imager\Tracy\Panel $panel
-   */
-  public function setPanel(Tracy\Panel $panel)
-  {
-    $this->panel = $panel;
+    return new Image($image);
   }
 }

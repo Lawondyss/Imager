@@ -28,7 +28,7 @@ class Macro extends MacroSet
           return $me->macroSrc($writer);
         }, null,
         function (MacroNode $node, PhpWriter $writer) use ($me) {
-          return ' ?> src="<?php ' . $me->macroSrc($writer) . ' ?>"<?php ';
+          return ' ?> src="<?php ' . $me->macroSrc($writer) . ' ?>" data-imager="index"<?php ';
         }
     );
   }

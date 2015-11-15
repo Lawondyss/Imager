@@ -6,6 +6,7 @@
 
 namespace Imager\DI;
 
+use Imager;
 use Imager\InvalidStateException;
 use Nette\DI\CompilerExtension;
 
@@ -36,22 +37,18 @@ class Extension extends CompilerExtension
     $builder = $this->getContainerBuilder();
 
     $builder->addDefinition($this->prefix('repository'))
-        ->setClass(\Imager\Repository::class, [
+        ->setClass(Imager\Repository::class, [
             $config['sourcesDir'],
             $config['thumbsDir'],
         ]);
 
-    $imageFactory = $builder->addDefinition($this->prefix('imageFactory'))
-        ->setClass(\Imager\ImageFactory::class);
     $builder->addDefinition($this->prefix('imageFactory'))
-        ->setClass(\Imager\ImageFactory::class)
+        ->setClass(Imager\ImageFactory::class)
         ->addSetup('Imager\ImageFactory::$showErrorImage', [$config['errorImage']]);
 
     if ($config['debugger'] && interface_exists(\Tracy\IBarPanel::class)) {
       $builder->addDefinition($this->prefix('panel'))
-        ->setClass(\Imager\Tracy\Panel::class);
-
-      $imageFactory->addSetup('?->register(?)', [$this->prefix('@panel'), '@self']);
+          ->setClass(Imager\Tracy\Panel::class);
     }
   }
 
@@ -62,7 +59,7 @@ class Extension extends CompilerExtension
     $builder = $this->getContainerBuilder();
 
     $builder->addDefinition($this->prefix('route'))
-        ->setClass(\Imager\Application\Route::class, [$this->prefix('@repository'), $this->prefix('@imageFactory'), $config['basePath']])
+        ->setClass(Imager\Application\Route::class, [$this->prefix('@repository'), $this->prefix('@imageFactory'), $config['basePath']])
         ->setAutowired(false);
 
     $router = $builder->getDefinition('router');
@@ -71,6 +68,11 @@ class Extension extends CompilerExtension
     $latteName = $builder->hasDefinition('latte.latteFactory') ? 'latte.latteFactory' : 'latte.latte';
     $latte = $builder->getDefinition($latteName);
     $latte->addSetup('\Imager\Latte\Macro::install(?->getCompiler(), ?)', ['@self', $config['baseUrl']]);
+
+    if ($config['debugger'] && interface_exists(\Tracy\IBarPanel::class)) {
+      $builder->getDefinition('tracy.bar')
+          ->addSetup('?->register()', [$this->prefix('@panel')]);
+    }
   }
 
 

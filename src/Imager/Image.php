@@ -19,9 +19,6 @@ class Image
   /** @var \Imager\ImageInfo */
   private $image;
 
-  /** @var \Imager\Tracy\Panel */
-  private $panel;
-
 
   /**
    * @param \Imager\ImageInfo $image
@@ -60,28 +57,18 @@ class Image
     $command = sprintf('convert %s %s %s', $source, $options, $target);
     $this->run($command);
 
-    $imageInfo = new ImageInfo($target, $this->image);
-
-    if (isset($this->panel)) {
-      $this->panel->addImage($imageInfo);
-    }
-
-    return $imageInfo;
+    return new ImageInfo($target, $this->image);
   }
 
 
   /**
-   * @internal
-   * @param \Imager\Tracy\Panel $panel
    * Generate image with error and send to output
    *
    * @param int $width
    * @param int $height
    */
-  public function injectPanel(Tracy\Panel $panel)
   public static function errorImage($width, $height)
   {
-    $this->panel = $panel;
     if (!ImageFactory::$showErrorImage) {
       return;
     }
