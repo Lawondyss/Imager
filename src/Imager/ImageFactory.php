@@ -9,6 +9,10 @@ namespace Imager;
 class ImageFactory
 {
 
+  /** @var bool */
+  public static $showErrorImage;
+
+
   /**
    * Returns instance of \Imager\Image
    *
@@ -18,5 +22,19 @@ class ImageFactory
   public function create(ImageInfo $image)
   {
     return new Image($image);
+  }
+
+
+  /**
+   * Send error image to output
+   *
+   * @param int $width
+   * @param int $height
+   */
+  public function sendErrorImage($width, $height)
+  {
+    if (self::$showErrorImage) {
+      Image::errorImage($width, $height);
+    }
   }
 }

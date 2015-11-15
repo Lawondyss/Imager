@@ -93,7 +93,7 @@ class RepositoryTest extends Tester\TestCase
     Assert::same(1280, $result->getHeight());
     Assert::same(2, $result->getType());
     Assert::same('image/jpeg', $result->getMime());
-    Assert::contains('_960x1280.jpg', $result->getFilename());
+    Assert::notContains('_960x1280.jpg', $result->getFilename());
     Assert::null($result->getSource());
   }
 

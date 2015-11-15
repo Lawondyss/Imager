@@ -62,6 +62,28 @@ class Image
 
 
   /**
+   * Generate image with error and send to output
+   *
+   * @param int $width
+   * @param int $height
+   */
+  public static function errorImage($width, $height)
+  {
+    $command = [
+      'convert',
+      sprintf('-size %dx%d', $width, $height),
+      '-background red',
+      '-gravity center',
+      '-fill black',
+      'label:" Error image generation. \n\n More information \n in image headers. "',
+      'gif:-'
+    ];
+    $command = implode(' ', $command);
+    passthru($command);
+  }
+
+
+  /**
    * Check value of dimension
    *
    * @param int|string $dimension
