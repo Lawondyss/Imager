@@ -69,8 +69,12 @@ class Route extends Application\Routers\Route
       return;
     }
 
-    // parameter "id" is instance of ImageInfo
-    $id = $request->getParameter('id')->getFilename();
+    // parameter "id" will be name in string or instance of ImageInfo
+    $id = $request->getParameter('id');
+    if ($id instanceof Imager\ImageInfo) {
+      $id = $id->getFilename();
+    }
+
     $parts = explode('.', $id);
     $extension = '.' . array_pop($parts);
     $name = implode('.', $parts);
