@@ -28,6 +28,14 @@ $thumb = $image->resize(null, 100);
 
 // resize with crop, croped image is centered
 $thumb = $image->resize(100, 100);
+
+// origin dimensions
+$thumb = $image->resize(0, 0);
+
+/** Send image to output **/
+header('Content-Type: ' . $thumb->getMime());
+header('Content-Length: ' . $thumb->getSize());
+echo $thumb->getContent();
 ```
 
 ### Repository for sources images and thumbnails
@@ -69,4 +77,56 @@ imager:
     debugger: on # default as debugMode; display information in debug bar; WARNING! For everyone image send new request!
 ```
 
+## Example with extension
+Presenter for upload and show images
+```php
+class ImagerPresenter extends BasePresenter
+{
+    /** @var \Imager\Repository @inject */
+    public $repository;
+
+    /** @var \Imager\ImageFactory @inject */
+    public $factory;
+
+    public function renderDefault($id)
+    {
+        if (isset($id)) {
+            $this->template->image = $this->repository->fetch($id);
+        }
+    }
+
+
+    protected function createComponentUploadForm()
+    {
+        $control = new Nette\Application\UI\Form;
+
+        $control->addUpload('photo')
+            ->setRequired();
+        $control->addSubmit('load', 'load image');
+        $control->onSuccess[] = $this->uploadFormSucceed;
+
+        return $control;
+    }
+
+    public function uploadFormSucceed(Nette\Application\UI\Form $form, $values)
+    {
+        $upload = new ImageInfo($values->photo->getTemporaryFile());
+        $source = $this->repository->save($upload);
+
+        $this->redirect('default', $source->getFilename());
+    }
+}
+```
+Latte template
+```
+{block content}
+{control uploadForm}
+{ifset $image}
+    <img n:src="$image, 200, 0"> {* set width, origin height *}
+    <img n:src="$image, 200, 300"> {* set width and height *}
+    <img n:src="$image, null, 300"> {* resize by height *}
+    <img n:src="$image, 200"> {* resize by width *}
+    <img n:src="$image"> {* origin width and height *}
+{/ifset}
+```
 [Composer]:https://getcomposer.org/

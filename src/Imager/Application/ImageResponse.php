@@ -78,11 +78,15 @@ class ImageResponse implements IResponse
 
     } else {
       $response->setHeader('X-Imager-Error-Message', get_class($error) . ': ' . $error->getMessage());
-      $response->setHeader('X-Imager-Error-File', $error->getFile() . ' (' . $error->getLine() . ')');
 
-      $trace = $error->getTraceAsString();
-      $trace = Strings::replace($trace, '~[\n|\n\r]~', '>>>');
-      $response->setHeader('X-Imager-Error-Trace', $trace);
+      // detailed information only in debug mode
+      if ($this->factory->getDebugger()) {
+        $response->setHeader('X-Imager-Error-File', $error->getFile() . ' (' . $error->getLine() . ')');
+
+        $trace = $error->getTraceAsString();
+        $trace = Strings::replace($trace, '~[\n|\n\r]~', '>>>');
+        $response->setHeader('X-Imager-Error-Trace', $trace);
+      }
     }
 
     $this->factory->sendErrorImage($width, $height);
