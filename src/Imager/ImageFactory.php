@@ -10,7 +10,38 @@ class ImageFactory
 {
 
   /** @var bool */
-  public static $showErrorImage;
+  private $showErrorImage;
+
+  /** @var bool */
+  private $debugger;
+
+
+  /**
+   * @param bool $showErrorImage
+   */
+  public function setShowErrorImage($showErrorImage)
+  {
+    $this->showErrorImage = $showErrorImage;
+  }
+
+
+  /**
+   * @param bool $debugger
+   */
+  public function setDebugger($debugger)
+  {
+    $this->debugger = (bool)$debugger;
+  }
+
+
+  /**
+   * @return bool
+   */
+  public function getDebugger()
+  {
+    return $this->debugger;
+  }
+
 
 
   /**
@@ -33,7 +64,7 @@ class ImageFactory
    */
   public function sendErrorImage($width, $height)
   {
-    if (self::$showErrorImage) {
+    if ($this->showErrorImage) {
       Image::errorImage($width, $height);
     }
   }

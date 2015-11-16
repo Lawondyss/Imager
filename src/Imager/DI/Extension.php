@@ -44,7 +44,8 @@ class Extension extends CompilerExtension
 
     $builder->addDefinition($this->prefix('imageFactory'))
         ->setClass(Imager\ImageFactory::class)
-        ->addSetup('Imager\ImageFactory::$showErrorImage', [$config['errorImage']]);
+        ->addSetup('?->setShowErrorImage(?)', ['@self', $config['errorImage']])
+        ->addSetup('?->setDebugger(?)', ['@self', $config['debugger']]);
 
     if ($config['debugger'] && interface_exists(\Tracy\IBarPanel::class)) {
       $builder->addDefinition($this->prefix('panel'))
