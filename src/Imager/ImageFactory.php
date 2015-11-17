@@ -46,15 +46,18 @@ class ImageFactory
   }
 
 
-
   /**
    * Returns instance of \Imager\Image
    *
-   * @param \Imager\ImageInfo $image
+   * @param string|\Imager\ImageInfo $image String must be path to image
    * @return \Imager\Image
    */
-  public function create(ImageInfo $image)
+  public function create($image)
   {
+    if (!($image instanceof ImageInfo)) {
+      $image = $this->createInfo($image);
+    }
+
     return new Image($image);
   }
 
