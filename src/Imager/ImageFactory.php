@@ -6,6 +6,9 @@
 
 namespace Imager;
 
+use Imager\Latte\Macro;
+use Nette\Application;
+
 class ImageFactory
 {
 
@@ -43,16 +46,70 @@ class ImageFactory
   }
 
 
-
   /**
    * Returns instance of \Imager\Image
    *
-   * @param \Imager\ImageInfo $image
+   * @param string|\Imager\ImageInfo $image String must be path to image
    * @return \Imager\Image
    */
-  public function create(ImageInfo $image)
+  public function create($image)
   {
+    if (!($image instanceof ImageInfo)) {
+      $image = $this->createInfo($image);
+    }
+
     return new Image($image);
+  }
+
+
+  /**
+   * Returns instance of \Imager\ImageInfo
+   *
+   * @param string $imageName
+   * @return \Imager\ImageInfo
+   */
+  public function createInfo($imageName)
+  {
+    return new ImageInfo($imageName);
+  }
+
+
+  /**
+   * Returns URL for thumbnail of image
+   *
+   * @param \Nette\Application\IPresenter $presenter
+   * @param string|\Imager\ImageInfo $image
+   * @param null|int $width
+   * @param null|int $height
+   * @return string
+   * @throws \Imager\RuntimeException
+   */
+  public function createLink(Application\IPresenter $presenter, $image, $width = null, $height = null)
+  {
+    // Parameters $presenter and $baseUrl it's in code for eval
+    // Their presence here enables functionality
+
+    $baseUrl = $presenter->context->getService('http.request')->getUrl()->baseUrl;
+
+    if ($image instanceof ImageInfo) {
+      $image = $image->getFilename();
+    }
+
+    // code with parameters for eval
+    $parameters = sprintf('["%s", %s, %s]', $image, $width ?: 'null', $height ?: 'null');
+
+    $code = Macro::getCode($parameters);
+
+    // for get link must be result returns
+    $code[] = 'return $link;';
+
+    $link = @eval(implode('', $code)); // @ escalates to exception
+    if (!isset($link) || $link === false) {
+      $msg = sprintf('Error on code for eval(): %s', implode(' ', $code));
+      throw new RuntimeException($msg);
+    }
+
+    return $link;
   }
 
 

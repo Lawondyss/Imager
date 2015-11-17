@@ -53,12 +53,11 @@ class Macro extends MacroSet
    */
   public static function getCode($parametersCode)
   {
-    $code = [];
-    $code[] = '$imgBaseUrl = rtrim("' . self::$baseUrl . '", "/");';
-    $code[] = '$destination = (empty($imgBaseUrl) ? "//" : "" ) . ":Nette:Micro:";';
-    $code[] = '$link = $presenter->link($destination, Imager\Helpers::prepareArguments(' . $parametersCode . '));';
-    $code[] = '$stripPos = substr($link, 0, 4) === "http" ? strpos($link, "/", 10) : 0;';
-    $code[] = '$link = $imgBaseUrl . substr($link, $stripPos);';
+    $code = [
+      '$imgBaseUrl = !empty("' . self::$baseUrl . '") ? "' . self::$baseUrl . '" : (isset($baseUrl) ? $baseUrl : "");',
+      '$url = $presenter->link(":Nette:Micro:", Imager\Helpers::prepareArguments(' . $parametersCode . '));',
+      '$link = rtrim($imgBaseUrl, "/") . "/" . ltrim($url, "/");',
+    ];
 
     return $code;
   }

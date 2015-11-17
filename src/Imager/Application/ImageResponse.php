@@ -6,9 +6,7 @@
 
 namespace Imager\Application;
 
-use Imager\Image;
 use Imager\ImageFactory;
-use Imager\NotExistsException;
 use Imager\Repository;
 use Nette\Application\IResponse;
 use Nette\Http\IRequest as HttpRequest;
