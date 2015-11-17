@@ -6,6 +6,7 @@
 
 namespace Imager;
 
+use Nette;
 use Nette\Utils\FileSystem;
 use Nette\Utils\Strings;
 
@@ -121,11 +122,15 @@ class Repository
   private function setSourcesDirectory($sourcesDirectory)
   {
     $sourcesDirectory = Strings::trim($sourcesDirectory);
-    $sourcesDirectory = rtrim($sourcesDirectory, '\\/');
+    $sourcesDirectory = rtrim($sourcesDirectory, DIRECTORY_SEPARATOR);
 
     if (!is_dir($sourcesDirectory)) {
-      $msg = sprintf('Directory "%s" with sources not exists.', $sourcesDirectory);
-      throw new NotExistsException($msg);
+      try {
+        FileSystem::createDir($sourcesDirectory);
+      } catch (Nette\IOException $e) {
+        $msg = sprintf('Directory "%s" with sources not exists and cannot be create.', $sourcesDirectory);
+        throw new NotExistsException($msg, 0, $e);
+      }
     }
 
     if (!is_writable($sourcesDirectory)) {
@@ -147,11 +152,15 @@ class Repository
   private function setThumbnailsDirectory($thumbnailsDirectory)
   {
     $thumbnailsDirectory = Strings::trim($thumbnailsDirectory);
-    $thumbnailsDirectory = rtrim($thumbnailsDirectory, '\\/');
+    $thumbnailsDirectory = rtrim($thumbnailsDirectory, DIRECTORY_SEPARATOR);
 
     if (!is_dir($thumbnailsDirectory)) {
-      $msg = sprintf('Directory "%s" with thumbnails not exists.', $thumbnailsDirectory);
-      throw new NotExistsException($msg);
+      try {
+        FileSystem::createDir($thumbnailsDirectory);
+      } catch (Nette\IOException $e) {
+        $msg = sprintf('Directory "%s" with thumbnails not exists and cannot be create.', $thumbnailsDirectory);
+        throw new NotExistsException($msg, 0, $e);
+      }
     }
 
     if (!is_writable($thumbnailsDirectory)) {
