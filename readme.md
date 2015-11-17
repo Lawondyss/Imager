@@ -139,5 +139,38 @@ Latte template
 {/ifset}
 ```
 
+### Link to image
+If you required create link to image (example to e-mail), then is here method `ImageFactory::createLink()`.
+Create a link is only possible when integrating into the Nette.
+```php
+class EmailPresenter extends BasePresenter
+{
+    /** @var \Imager\ImageFactory @inject */
+    public $factory;
+
+    public function actionSendEmail($email)
+    {
+        // ... defines $images as array with Imager\ImageInfo objects or names of images
+
+        $linksHtml = [];
+        foreach ($images as $image) {
+          $linksHtml = $this->createImg($this, $image);
+        }
+
+        // ... functionality for send e-mail
+    }
+
+
+    private function createImg($image, $width = null, $height = null)
+    {
+        $link = $this->factory->createLink($this, $image, $width, $height);
+        
+        $img = Nette\Utils\Html::el('img', ['src' => $link]);
+
+        return $img->render();
+    }
+}
+```
+
 [Composer]:https://getcomposer.org/
 [ImageMagick]:http://www.imagemagick.org/
