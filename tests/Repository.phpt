@@ -35,14 +35,6 @@ class RepositoryTest extends Tester\TestCase
 
   public function testCreate()
   {
-    Assert::exception(function() {
-      new Repository('non/exists/path');
-    }, \Imager\NotExistsException::class);
-
-    Assert::exception(function() {
-      new Repository(TEMP_DIR, 'non/exists/path');
-    }, \Imager\NotExistsException::class);
-
     Assert::type(Repository::class, new Repository(TEMP_DIR));
     Assert::type(Repository::class, new Repository(TEMP_DIR, TEMP_DIR));
   }
