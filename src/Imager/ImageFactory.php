@@ -78,21 +78,25 @@ class ImageFactory
    * Returns URL for thumbnail of image
    *
    * @param \Nette\Application\IPresenter $presenter
-   * @param string $imageName
+   * @param string|\Imager\ImageInfo $image
    * @param null|int $width
    * @param null|int $height
    * @return string
    * @throws \Imager\RuntimeException
    */
-  public function createLink(Application\IPresenter $presenter, $imageName, $width = null, $height = null)
+  public function createLink(Application\IPresenter $presenter, $image, $width = null, $height = null)
   {
     // Parameters $presenter and $baseUrl it's in code for eval
     // Their presence here enables functionality
 
     $baseUrl = $presenter->context->getService('http.request')->getUrl()->baseUrl;
 
+    if ($image instanceof ImageInfo) {
+      $image = $image->getFilename();
+    }
+
     // code with parameters for eval
-    $parameters = sprintf('["%s", %s, %s]', $imageName, $width ?: 'null', $height ?: 'null');
+    $parameters = sprintf('["%s", %s, %s]', $image, $width ?: 'null', $height ?: 'null');
 
     $code = Macro::getCode($parameters);
 
