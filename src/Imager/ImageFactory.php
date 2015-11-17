@@ -57,6 +57,18 @@ class ImageFactory
 
 
   /**
+   * Returns instance of \Imager\ImageInfo
+   *
+   * @param string $imageName
+   * @return \Imager\ImageInfo
+   */
+  public function createInfo($imageName)
+  {
+    return new ImageInfo($imageName);
+  }
+
+
+  /**
    * Send error image to output
    *
    * @param int $width
