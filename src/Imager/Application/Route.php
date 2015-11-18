@@ -42,21 +42,23 @@ class Route extends Application\Routers\Route
 
     $imgUrl = Strings::after($url->path, $this->basePath);
     $imgUrl = Strings::after($imgUrl, '/', -1);
-    $matches = Strings::match($imgUrl, '~^([^_]+)_?([\d]*)x?([\d]*)(\.[a-z]+)$~i');
+    $matches = Strings::match($imgUrl, '~^([^_]+)_?(\d*)x?(\d*)-?(\d*)(\.[a-z]+)$~i');
 
     if (!isset($matches)) {
       return;
     }
-    list(, $name, $width, $height, $ext) = $matches;
+    list(, $name, $width, $height, $quality, $ext) = $matches;
 
     $id = $name . $ext;
     $height = $height !== '' ? $height : null;
     // if not defined width and height, then default size is original
     $width = $width !== '' ? $width : (!isset($height) ? 0 : null);
+    $quality = $quality !== '' ? $quality : null;
 
     $url->setQueryParameter('id', $id)
         ->setQueryParameter('width', $width)
-        ->setQueryParameter('height', $height);
+        ->setQueryParameter('height', $height)
+        ->setQueryParameter('quality', $quality);
 
     $response = new ImageResponse($this->repository, $this->imageFactory);
     $response->send(new Http\Request($url), new Http\Response);
@@ -80,16 +82,18 @@ class Route extends Application\Routers\Route
     $name = implode('.', $parts);
     $width = $request->getParameter('width');
     $height = $request->getParameter('height');
+    $quality = $request->getParameter('quality');
 
-    if (isset($width) && isset($height)) {
-      $dimension = '_' . $width . 'x' . $height;
-    } elseif (isset($width)) {
-      $dimension = '_' . $width;
-    } elseif (isset($height)) {
-      $dimension = '_x' . $height;
-    } else {
-      $dimension = '';
-    }
+    $dimension = [
+        (isset($width) || isset($height) || isset($quality)) ? '_' : '',
+      $width,
+        (isset($height) || isset($quality)) ? 'x' : '',
+      $height,
+        (isset($quality)) ? '-' : '',
+      $quality,
+    ];
+
+    $dimension = implode('', $dimension);
 
     return $this->basePath . Imager\Helpers::getSubPath($id) . $name . $dimension . $extension;
   }
