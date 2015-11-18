@@ -128,7 +128,7 @@ class Image
     } elseif (!isset($width)) {
       $options['resize'] = '"x' . $height . '"';
     } elseif ($flag === self::EXACT) {
-      $options['resize'] = '"' . $width . 'x' . Strings::trim($height, '!') . '^"';
+      $options['resize'] = '"' . Strings::trim($width, '!') . 'x' . Strings::trim($height, '!') . '^"';
     } else {
       $options['resize'] = '"' . $width . 'x' . $height . '"';
     }
