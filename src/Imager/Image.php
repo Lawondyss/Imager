@@ -12,10 +12,6 @@ use Nette\Utils\Validators;
 class Image
 {
 
-  const FIT = 0;
-  const EXACT = 8;
-
-
   /** @var \Imager\ImageInfo */
   private $image;
 
@@ -38,7 +34,7 @@ class Image
    * @throws \Imager\InvalidArgumentException
    * @throws \Imager\InvalidStateException
    */
-  public function resize($with = null, $height = null, $flag = self::EXACT)
+  public function resize($with = null, $height = null)
   {
     if (!isset($with) && !isset($height)) {
       throw new InvalidArgumentException('At least one dimension must be defined.');
@@ -51,7 +47,7 @@ class Image
     $height = $height === 0 ? $this->image->getHeight() . '!' : $height;
 
     $source = $this->image->getPathname();
-    $options = $this->getCommandOptions($with, $height, $flag);
+    $options = $this->getCommandOptions($with, $height);
     $target = $this->createTempFile();
 
     $command = sprintf('convert %s %s %s', $source, $options, $target);
@@ -108,10 +104,9 @@ class Image
    *
    * @param mixed $width
    * @param mixed $height
-   * @param int $flag
    * @return string
    */
-  private function getCommandOptions($width, $height, $flag)
+  private function getCommandOptions($width, $height)
   {
     $options = [];
 
@@ -127,13 +122,11 @@ class Image
       $options['resize'] = '"' . $width . '"';
     } elseif (!isset($width)) {
       $options['resize'] = '"x' . $height . '"';
-    } elseif ($flag === self::EXACT) {
-      $options['resize'] = '"' . Strings::trim($width, '!') . 'x' . Strings::trim($height, '!') . '^"';
     } else {
-      $options['resize'] = '"' . $width . 'x' . $height . '"';
+      $options['resize'] = '"' . Strings::trim($width, '!') . 'x' . Strings::trim($height, '!') . '^"';
     }
 
-    if ($flag === self::EXACT && isset($width) && isset($height)) {
+    if (isset($width) && isset($height)) {
       $options['gravity'] = 'center';
       $options['crop'] = '"' . $width . 'x' . $height . '+0+0"';
     }
