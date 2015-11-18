@@ -32,6 +32,9 @@ class Helpers
       } elseif ($key === 2 && !isset($arguments['height'])) {
         $arguments['height'] = $value;
         unset($arguments[$key]);
+      } elseif ($key === 3 && !isset($arguments['quality'])) {
+        $arguments['quality'] = $value;
+        unset($arguments[$key]);
       }
     }
 
@@ -94,7 +97,7 @@ class Helpers
     $name = md5($source->getPathname());
 
     // resolution of image only for thumbnail (has source)
-    $res = !$image->hasSource() ? '' : ('_' . $image->getWidth() . 'x' . $image->getHeight());
+    $res = !$image->hasSource() ? '' : ('_' . $image->getWidth() . 'x' . $image->getHeight() . '-' . $image->getQuality());
 
     if ($source->getExtension() !== '') {
       $ext = '.' . $source->getExtension();

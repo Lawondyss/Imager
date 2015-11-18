@@ -24,6 +24,9 @@ class ImageInfo extends \SplFileInfo
   /** @var string */
   private $mime;
 
+  /** @var int */
+  private $quality;
+
 
   /**
    * @param string $imagePath
@@ -120,6 +123,30 @@ class ImageInfo extends \SplFileInfo
   public function getContent()
   {
     return file_get_contents($this->getPathname());
+  }
+
+
+  /**
+   * Returns value of quality
+   * This value must be set manually!
+   *
+   * @return int
+   */
+  public function getQuality()
+  {
+    return $this->quality;
+  }
+
+
+  /**
+   * Sets quality of image
+   *
+   * @internal
+   * @param int $quality
+   */
+  public function setQuality($quality)
+  {
+    $this->quality = $quality;
   }
 
 }

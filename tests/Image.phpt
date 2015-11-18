@@ -36,15 +36,7 @@ class ImageTest extends Tester\TestCase
     }, \Imager\InvalidArgumentException::class);
 
     Assert::exception(function() {
-      $this->image->resize(null, null, Image::FIT);
-    }, \Imager\InvalidArgumentException::class);
-
-    Assert::exception(function() {
       $this->image->resize(-100, null);
-    }, \Imager\InvalidArgumentException::class);
-
-    Assert::exception(function() {
-      $this->image->resize(-100, null, Image::FIT);
     }, \Imager\InvalidArgumentException::class);
   }
 
@@ -55,23 +47,11 @@ class ImageTest extends Tester\TestCase
     Assert::type(\Imager\ImageInfo::class, $result);
     Assert::same(75, $result->getWidth());
 
-    $result = $this->image->resize(null, 100, Image::FIT);
-    Assert::type(\Imager\ImageInfo::class, $result);
-    Assert::same(75, $result->getWidth());
-
     $result = $this->image->resize(100, 100);
     Assert::type(\Imager\ImageInfo::class, $result);
     Assert::same(100, $result->getWidth());
 
-    $result = $this->image->resize(100, 100, Image::FIT);
-    Assert::type(\Imager\ImageInfo::class, $result);
-    Assert::same(75, $result->getWidth());
-
     $result = $this->image->resize(100);
-    Assert::type(\Imager\ImageInfo::class, $result);
-    Assert::same(100, $result->getWidth());
-
-    $result = $this->image->resize(100, null, Image::FIT);
     Assert::type(\Imager\ImageInfo::class, $result);
     Assert::same(100, $result->getWidth());
 
@@ -79,15 +59,7 @@ class ImageTest extends Tester\TestCase
     Assert::type(\Imager\ImageInfo::class, $result);
     Assert::same(960, $result->getWidth());
 
-    $result = $this->image->resize(0, null, Image::FIT);
-    Assert::type(\Imager\ImageInfo::class, $result);
-    Assert::same(960, $result->getWidth());
-
     $result = $this->image->resize('100%');
-    Assert::type(\Imager\ImageInfo::class, $result);
-    Assert::same(960, $result->getWidth());
-
-    $result = $this->image->resize('100%', null, Image::FIT);
     Assert::type(\Imager\ImageInfo::class, $result);
     Assert::same(960, $result->getWidth());
   }
@@ -103,15 +75,7 @@ class ImageTest extends Tester\TestCase
     Assert::type(\Imager\ImageInfo::class, $result);
     Assert::same(100, $result->getHeight());
 
-    $result = $this->image->resize(null, 100, Image::FIT);
-    Assert::type(\Imager\ImageInfo::class, $result);
-    Assert::same(100, $result->getHeight());
-
     $result = $this->image->resize(100, 100);
-    Assert::type(\Imager\ImageInfo::class, $result);
-    Assert::same(100, $result->getHeight());
-
-    $result = $this->image->resize(100, 100, Image::FIT);
     Assert::type(\Imager\ImageInfo::class, $result);
     Assert::same(100, $result->getHeight());
 
@@ -119,15 +83,7 @@ class ImageTest extends Tester\TestCase
     Assert::type(\Imager\ImageInfo::class, $result);
     Assert::same(1280, $result->getHeight());
 
-    $result = $this->image->resize(null, 0, Image::FIT);
-    Assert::type(\Imager\ImageInfo::class, $result);
-    Assert::same(1280, $result->getHeight());
-
     $result = $this->image->resize(null, '100%');
-    Assert::type(\Imager\ImageInfo::class, $result);
-    Assert::same(1280, $result->getHeight());
-
-    $result = $this->image->resize(null, '100%', Image::FIT);
     Assert::type(\Imager\ImageInfo::class, $result);
     Assert::same(1280, $result->getHeight());
   }

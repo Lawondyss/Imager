@@ -12,10 +12,6 @@ use Nette\Utils\Validators;
 class Image
 {
 
-  const FIT = 0;
-  const EXACT = 8;
-
-
   /** @var \Imager\ImageInfo */
   private $image;
 
@@ -34,11 +30,12 @@ class Image
    *
    * @param null|int|string $with NULL: original width; integer: width in pixel; string: others specific (50%)
    * @param null|int|string $height NULL: calculating by ratio; integer: height in pixel; string: others specific (50%)
+   * @param null|int $quality
    * @return \Imager\ImageInfo
    * @throws \Imager\InvalidArgumentException
    * @throws \Imager\InvalidStateException
    */
-  public function resize($with = null, $height = null, $flag = self::EXACT)
+  public function resize($with = null, $height = null, $quality = null)
   {
     if (!isset($with) && !isset($height)) {
       throw new InvalidArgumentException('At least one dimension must be defined.');
@@ -49,15 +46,19 @@ class Image
 
     $with = $with === 0 ? $this->image->getWidth() . '!' : $with;
     $height = $height === 0 ? $this->image->getHeight() . '!' : $height;
+    $quality = $quality ?: 0;
 
     $source = $this->image->getPathname();
-    $options = $this->getCommandOptions($with, $height, $flag);
+    $options = $this->getCommandOptions($with, $height, $quality);
     $target = $this->createTempFile();
 
     $command = sprintf('convert %s %s %s', $source, $options, $target);
     $this->run($command);
 
-    return new ImageInfo($target, $this->image);
+    $img = new ImageInfo($target, $this->image);
+    $img->setQuality($quality);
+
+    return $img;
   }
 
 
@@ -108,10 +109,10 @@ class Image
    *
    * @param mixed $width
    * @param mixed $height
-   * @param int $flag
+   * @param null|int $quality
    * @return string
    */
-  private function getCommandOptions($width, $height, $flag)
+  private function getCommandOptions($width, $height, $quality)
   {
     $options = [];
 
@@ -127,15 +128,17 @@ class Image
       $options['resize'] = '"' . $width . '"';
     } elseif (!isset($width)) {
       $options['resize'] = '"x' . $height . '"';
-    } elseif ($flag === self::EXACT) {
-      $options['resize'] = '"' . $width . 'x' . Strings::trim($height, '!') . '^"';
     } else {
-      $options['resize'] = '"' . $width . 'x' . $height . '"';
+      $options['resize'] = '"' . Strings::trim($width, '!') . 'x' . Strings::trim($height, '!') . '^"';
     }
 
-    if ($flag === self::EXACT && isset($width) && isset($height)) {
+    if (isset($width) && isset($height)) {
       $options['gravity'] = 'center';
       $options['crop'] = '"' . $width . 'x' . $height . '+0+0"';
+    }
+
+    if (isset($quality) && $quality !== 0) {
+      $options['quality'] = $quality;
     }
 
     $command = [];

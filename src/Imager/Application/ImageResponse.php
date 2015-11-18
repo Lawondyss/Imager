@@ -34,6 +34,7 @@ class ImageResponse implements IResponse
   {
     $width = null;
     $height = null;
+    $quality = null;
 
     try {
 
@@ -42,10 +43,11 @@ class ImageResponse implements IResponse
       $id = $url->getQueryParameter('id');
       $width = $url->getQueryParameter('width');
       $height = $url->getQueryParameter('height');
+      $quality = $url->getQueryParameter('quality');
 
       $source = $this->repository->fetch($id);
 
-      $thumb = $this->factory->create($source)->resize($width, $height);
+      $thumb = $this->factory->create($source)->resize($width, $height, $quality);
       $thumb = $this->repository->save($thumb);
 
       $response->setContentType($thumb->getMime());

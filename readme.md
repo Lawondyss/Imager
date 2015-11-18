@@ -34,6 +34,10 @@ $thumb = $image->resize(100, 100);
 // origin dimensions
 $thumb = $image->resize(0, 0);
 
+/** Quality **/
+// set in third parameter, lower is worse, 0 is default quality
+$thumb = $image->resize(0, 0, 25);
+
 /** Send image to output **/
 header('Content-Type: ' . $thumb->getMime());
 header('Content-Length: ' . $thumb->getSize());
@@ -133,9 +137,13 @@ Latte template
     <img n:src="$imageFromRepository, null, 300"> {* resize by height *}
     <img n:src="$imageFromRepository, 200"> {* resize by width *}
     <img n:src="$imageFromRepository"> {* origin width and height *}
+
+    {* set quality *}
+    <img n:src="$imageFromRepository, null, null, 25"> {* origin width and height, but lowest quality *}
+
     {* same parameters as for $imageFromRepository *}
     <img n:src="$imageFromString">
-    
+
 {/ifset}
 ```
 
