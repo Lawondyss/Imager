@@ -78,8 +78,11 @@ class Route extends Application\Routers\Route
     }
 
     $parts = explode('.', $id);
+    // extension is on last position
     $extension = '.' . array_pop($parts);
+    // implode back for case that name contains dots
     $name = implode('.', $parts);
+
     $width = $request->getParameter('width');
     $height = $request->getParameter('height');
     $quality = $request->getParameter('quality');

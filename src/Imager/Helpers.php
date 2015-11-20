@@ -90,7 +90,7 @@ class Helpers
    * @param \Imager\ImageInfo $image
    * @return string
    */
-  public static function makeName(ImageInfo $image)
+  public static function createName(ImageInfo $image)
   {
     $source = $image->getSource() ?: $image;
 
@@ -103,19 +103,19 @@ class Helpers
       $ext = '.' . $source->getExtension();
 
     } else {
-      $extentions = [
+      $extensions = [
           IMAGETYPE_GIF => '.gif',
           IMAGETYPE_JPEG => '.jpg',
           IMAGETYPE_PNG => '.png',
           IMAGETYPE_BMP => '.bmp',
       ];
 
-      if (!array_key_exists($source->getType(), $extentions)) {
+      if (!array_key_exists($source->getType(), $extensions)) {
         $msg = sprintf('Image "%s" is unsupported type.', $source->getFilename());
         throw new InvalidStateException($msg);
       }
 
-      $ext = $extentions[$source->getType()];
+      $ext = $extensions[$source->getType()];
     }
 
     $fileName = $name . $res . $ext;

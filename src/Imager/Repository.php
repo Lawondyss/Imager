@@ -90,7 +90,7 @@ class Repository
    */
   public function saveSource(ImageInfo $image, $name = null)
   {
-    $name = $name ?: Helpers::makeName($image);
+    $name = $name ?: Helpers::createName($image);
     $target = $this->getSourcePath($name);
 
     return $this->moveImage($image, $target);
@@ -106,7 +106,7 @@ class Repository
    */
   public function saveThumbnail(ImageInfo $image, $name = null)
   {
-    $name = $name ?: Helpers::makeName($image);
+    $name = $name ?: Helpers::createName($image);
     $target = $this->getThumbnailPath($name);
 
     return $this->moveImage($image, $target);
