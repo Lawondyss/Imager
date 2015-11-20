@@ -27,6 +27,9 @@ class ImageInfo extends \SplFileInfo
   /** @var int */
   private $quality;
 
+  /** @var array */
+  private $parameters = [];
+
 
   /**
    * @param string $imagePath
@@ -127,26 +130,32 @@ class ImageInfo extends \SplFileInfo
 
 
   /**
-   * Returns value of quality
-   * This value must be set manually!
+   * Sets internal custom parameter
    *
-   * @return int
+   * @internal
+   * @param string $name
+   * @param mixed $value
+   * @return $this
    */
-  public function getQuality()
+  public function setParameter($name, $value)
   {
-    return $this->quality;
+    $this->parameters[$name] = $value;
+
+    return $this;
   }
 
 
   /**
-   * Sets quality of image
+   * Returns internal custom parameter
    *
    * @internal
-   * @param int $quality
+   * @param string $name
+   * @param null|mixed $default
+   * @return mixed
    */
-  public function setQuality($quality)
+  public function getParameter($name, $default = null)
   {
-    $this->quality = $quality;
+    return array_key_exists($name, $this->parameters) ? $this->parameters[$name] : $default;
   }
 
 }

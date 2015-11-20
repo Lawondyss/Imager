@@ -28,35 +28,37 @@ class Image
   /**
    * Resize image and save to target file
    *
-   * @param null|int|string $with NULL: original width; integer: width in pixel; string: others specific (50%)
+   * @param null|int|string $width NULL: original width; integer: width in pixel; string: others specific (50%)
    * @param null|int|string $height NULL: calculating by ratio; integer: height in pixel; string: others specific (50%)
    * @param null|int $quality
    * @return \Imager\ImageInfo
    * @throws \Imager\InvalidArgumentException
    * @throws \Imager\InvalidStateException
    */
-  public function resize($with = null, $height = null, $quality = null)
+  public function resize($width = null, $height = null, $quality = null)
   {
-    if (!isset($with) && !isset($height)) {
-      throw new InvalidArgumentException('At least one dimension must be defined.');
-    }
+    // if $width and $height dot defined, than set $width to zero (generate origin size)
+    $helpWidth = !isset($width) && !isset($height) ? 0 : $width;
 
-    $this->checkDimension($with, 'width');
+    $this->checkDimension($helpWidth, 'width');
     $this->checkDimension($height, 'height');
 
-    $with = $with === 0 ? $this->image->getWidth() . '!' : $with;
-    $height = $height === 0 ? $this->image->getHeight() . '!' : $height;
-    $quality = $quality ?: 0;
+    $generateWith = $helpWidth === 0 ? $this->image->getWidth() . '!' : $width;
+    $generateHeight = $height === 0 ? $this->image->getHeight() . '!' : $height;
+    $generateQuality = $quality ?: 0;
 
     $source = $this->image->getPathname();
-    $options = $this->getCommandOptions($with, $height, $quality);
+    $options = $this->getCommandOptions($generateWith, $generateHeight, $generateQuality);
     $target = $this->createTempFile();
 
     $command = sprintf('convert %s %s %s', $source, $options, $target);
     $this->run($command);
 
     $img = new ImageInfo($target, $this->image);
-    $img->setQuality($quality);
+    $img->setParameter('id', $this->image->getFilename())
+        ->setParameter('width', $width)
+        ->setParameter('height', $height)
+        ->setParameter('quality', $quality);
 
     return $img;
   }
@@ -71,13 +73,13 @@ class Image
   public static function errorImage($width, $height)
   {
     $command = [
-      'convert',
-      sprintf('-size %dx%d', $width, $height),
-      '-background red',
-      '-gravity center',
-      '-fill black',
-      'label:" Error image generation. \n\n More information \n in image headers. "',
-      'gif:-'
+        'convert',
+        sprintf('-size %dx%d', $width, $height),
+        '-background red',
+        '-gravity center',
+        '-fill black',
+        'label:" Error image generation. \n\n More information \n in image headers. "',
+        'gif:-',
     ];
     $command = implode(' ', $command);
     passthru($command);

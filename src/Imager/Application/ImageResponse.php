@@ -39,16 +39,24 @@ class ImageResponse implements IResponse
     try {
 
       $url = $request->getUrl();
+      $name = Strings::after($url->getPath(), '/', -1);
 
-      $id = $url->getQueryParameter('id');
-      $width = $url->getQueryParameter('width');
-      $height = $url->getQueryParameter('height');
-      $quality = $url->getQueryParameter('quality');
+      try {
+        // only for case, when all images expected response from application and not from existing images
+        $thumb = $this->repository->fetchThumbnail($name);
 
-      $source = $this->repository->fetch($id);
+      } catch (\Imager\NotExistsException $e) {
+        // thumbnail must be generate, because not exists
+        $id = $url->getQueryParameter('id');
+        $width = $url->getQueryParameter('width');
+        $height = $url->getQueryParameter('height');
+        $quality = $url->getQueryParameter('quality');
 
-      $thumb = $this->factory->create($source)->resize($width, $height, $quality);
-      $thumb = $this->repository->save($thumb);
+        $source = $this->repository->fetch($id);
+
+        $thumb = $this->factory->create($source)->resize($width, $height, $quality);
+        $thumb = $this->repository->save($thumb);
+      }
 
       $response->setContentType($thumb->getMime());
       $response->setHeader('Content-Length', $thumb->getSize());
