@@ -24,9 +24,6 @@ class ImageInfo extends \SplFileInfo
   /** @var string */
   private $mime;
 
-  /** @var int */
-  private $quality;
-
   /** @var array */
   private $parameters = [];
 
