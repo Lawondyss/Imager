@@ -32,10 +32,6 @@ class ImageTest extends Tester\TestCase
   public function testExceptions()
   {
     Assert::exception(function() {
-      $this->image->resize();
-    }, \Imager\InvalidArgumentException::class);
-
-    Assert::exception(function() {
       $this->image->resize(-100, null);
     }, \Imager\InvalidArgumentException::class);
   }
