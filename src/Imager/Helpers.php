@@ -32,6 +32,7 @@ class Helpers
       } elseif ($key === 2 && !isset($arguments['height'])) {
         $arguments['height'] = $value;
         unset($arguments[$key]);
+
       } elseif ($key === 3 && !isset($arguments['quality'])) {
         $arguments['quality'] = $value;
         unset($arguments[$key]);
