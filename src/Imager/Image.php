@@ -42,6 +42,7 @@ class Image
 
     $this->checkDimension($helpWidth, 'width');
     $this->checkDimension($height, 'height');
+    $this->checkQuality($quality);
 
     $generateWith = $helpWidth === 0 ? $this->image->getWidth() . '!' : $width;
     $generateHeight = $height === 0 ? $this->image->getHeight() . '!' : $height;
@@ -94,13 +95,52 @@ class Image
    */
   private function checkDimension($dimension, $type)
   {
-    if (Validators::is($dimension, 'string') && !Validators::isNumeric($dimension) && Strings::substring($dimension, -1) !== '%') {
+    // dimension must be number or percent
+    if (Validators::is($dimension, 'string') && !Validators::isNumeric($dimension) && !Strings::endsWith($dimension, '%')) {
       $msg = sprintf('Dimension of %s has unexpected format, "%s" given.', $type, $dimension);
       throw new InvalidArgumentException($msg);
     }
 
+    // dimension cannot be negative number
     if ((int)$dimension < 0) {
       $msg = sprintf('Dimension of %s must be greater than 0, "%s" given.', $type, $dimension);
+      throw new InvalidArgumentException($msg);
+    }
+
+    // cannot be generate new image greater than 200 % of original image
+
+    // is number
+    $originDimension = $this->image->{'get' . Strings::firstUpper($type)}();
+    if (Validators::isNumeric($dimension) && $dimension > $originDimension * 2) {
+      $msg = sprintf('Required %s cannot be greater than 200 percent of original, "%s" required and "%s" is original.', $type, $dimension, $originDimension);
+      throw new InvalidArgumentException($msg);
+    }
+
+    // is percent
+    if (Strings::endsWith($dimension, '%') && (int)$dimension > 200) {
+      $msg = sprintf('Required %s cannot be greater than 200 percent of original, "%s" required.', $type, $dimension);
+      throw new InvalidArgumentException($msg);
+    }
+  }
+
+
+  /**
+   * Check value of quality
+   *
+   * @param int|string $quality
+   * @param string $type
+   */
+  private function checkQuality($quality)
+  {
+    // quality must be number or percent
+    if (Validators::is($quality, 'string') && !Validators::isNumeric($quality)) {
+      $msg = sprintf('Quality has unexpected format, "%s" given.', $quality);
+      throw new InvalidArgumentException($msg);
+    }
+
+    // quality cannot be negative number
+    if ((int)$quality < 0) {
+      $msg = sprintf('Quality must be greater than 0, "%s" given.', $quality);
       throw new InvalidArgumentException($msg);
     }
   }
