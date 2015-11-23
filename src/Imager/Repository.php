@@ -62,6 +62,34 @@ class Repository
 
 
   /**
+   * Returns instance of ImageInfo about fetched thumbnail
+   *
+   * @param string $name
+   * @return \Imager\ImageInfo
+   */
+  public function fetchThumbnail($name)
+  {
+    if (!isset($name) || Strings::length($name) === 0) {
+      throw new InvalidArgumentException('Name of fetched file cannot be empty.');
+    }
+
+    $thumbnail = $this->getThumbnailPath($name);
+
+    if (!file_exists($thumbnail)) {
+      $msg = sprintf('Thumbnail image "%s" not exists.', $thumbnail);
+      throw new NotExistsException($msg);
+    }
+
+    $parts = Helpers::parseName($name);
+    if (isset($parts['id'])) {
+      $source = $this->fetch($parts['id']);
+    }
+
+    return new ImageInfo($thumbnail, $source);
+  }
+
+
+  /**
    * Save (copy and remove) image to new image
    *
    * @param \Imager\ImageInfo $image
@@ -90,7 +118,7 @@ class Repository
    */
   public function saveSource(ImageInfo $image, $name = null)
   {
-    $name = $name ?: Helpers::makeName($image);
+    $name = $name ?: Helpers::createName($image);
     $target = $this->getSourcePath($name);
 
     return $this->moveImage($image, $target);
@@ -106,7 +134,7 @@ class Repository
    */
   public function saveThumbnail(ImageInfo $image, $name = null)
   {
-    $name = $name ?: Helpers::makeName($image);
+    $name = $name ?: Helpers::createName($image);
     $target = $this->getThumbnailPath($name);
 
     return $this->moveImage($image, $target);

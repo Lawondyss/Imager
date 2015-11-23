@@ -32,6 +32,7 @@ class Helpers
       } elseif ($key === 2 && !isset($arguments['height'])) {
         $arguments['height'] = $value;
         unset($arguments[$key]);
+
       } elseif ($key === 3 && !isset($arguments['quality'])) {
         $arguments['quality'] = $value;
         unset($arguments[$key]);
@@ -71,7 +72,6 @@ class Helpers
   }
 
 
-
   /**
    * Returns sub-path for greater segmentation
    *
@@ -90,36 +90,93 @@ class Helpers
    * @param \Imager\ImageInfo $image
    * @return string
    */
-  public static function makeName(ImageInfo $image)
+  public static function createName(ImageInfo $image)
   {
     $source = $image->getSource() ?: $image;
 
-    $name = md5($source->getPathname());
+    $id = $image->getParameter('id');
 
-    // resolution of image only for thumbnail (has source)
-    $res = !$image->hasSource() ? '' : ('_' . $image->getWidth() . 'x' . $image->getHeight() . '-' . $image->getQuality());
+    if (!isset($id)) {
+      $name = md5($source->getPathname());
+    } else {
+      $name = Strings::before($id, '.', -1);
+    }
+
+    // dimensions of image only for thumbnail (has source)
+    $width = $image->getParameter('width');
+    $height = $image->getParameter('height');
+    $quality = $image->getParameter('quality');
+    $dimensionName = self::createDimensionName($width, $height, $quality);
 
     if ($source->getExtension() !== '') {
       $ext = '.' . $source->getExtension();
 
     } else {
-      $extentions = [
+      $extensions = [
           IMAGETYPE_GIF => '.gif',
           IMAGETYPE_JPEG => '.jpg',
           IMAGETYPE_PNG => '.png',
           IMAGETYPE_BMP => '.bmp',
       ];
 
-      if (!array_key_exists($source->getType(), $extentions)) {
+      if (!array_key_exists($source->getType(), $extensions)) {
         $msg = sprintf('Image "%s" is unsupported type.', $source->getFilename());
         throw new InvalidStateException($msg);
       }
 
-      $ext = $extentions[$source->getType()];
+      $ext = $extensions[$source->getType()];
     }
 
-    $fileName = $name . $res . $ext;
+    $fileName = $name . $dimensionName . $ext;
 
     return $fileName;
+  }
+
+
+  /**
+   * Returns part of name for dimension
+   *
+   * @param null|int $width
+   * @param null|int $height
+   * @param null|int $quality
+   * @return string
+   */
+  public static function createDimensionName($width, $height, $quality)
+  {
+    $dimension = [
+        (isset($width) || isset($height) || isset($quality)) ? '_' : '',
+        $width,
+        (isset($height) || isset($quality)) ? 'x' : '',
+        $height,
+        isset($quality) ? '-' : '',
+        $quality,
+    ];
+
+    return implode('', $dimension);
+  }
+
+
+  /**
+   * Returns parts of name
+   *
+   * @param string $name
+   * @return array
+   */
+  public static function parseName($name)
+  {
+    $matches = Strings::match($name, '~^([^_]+)_?(\d*)x?(\d*)-?(\d*)(\.[a-z]+)$~i');
+
+    if (isset($matches)) {
+      list(, $name, $width, $height, $quality, $ext) = $matches;
+    } else {
+      $name = $width = $height = $quality = $ext = null;
+    }
+
+    return [
+        'id' => $name . $ext,
+        'width' => $width !== '' ? $width : null,
+        'height' => $height !== '' ? $height : null,
+        'quality' => $quality !== '' ? $quality : null,
+    ];
   }
 }

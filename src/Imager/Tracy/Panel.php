@@ -29,7 +29,6 @@ class Panel implements Tracy\IBarPanel
                 async: false,
                 success: function (res, status, xhr) {
                     var size = parseInt(xhr.getResponseHeader('Content-Length'));
-                    console.log(size, totalSize);
                     totalSize += size;
                 }
             });

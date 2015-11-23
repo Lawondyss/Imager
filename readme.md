@@ -7,6 +7,8 @@ Installation performed by [Composer]. Write to command line `composer require la
 ## CAUTION
 Library used [ImageMagick] over command line. Is necessary have ImageMagick installed in system.
 
+Generating image cannot be greater than 200 % of original image.
+
 ## Examples
 
 ### Create thumbnails

@@ -21,7 +21,6 @@ class ImageTest extends Tester\TestCase
   private $image;
 
 
-  /**/
   protected function setUp()
   {
     $imageInfo = new ImageInfo(ASSETS . IMAGE);
@@ -32,11 +31,31 @@ class ImageTest extends Tester\TestCase
   public function testExceptions()
   {
     Assert::exception(function() {
-      $this->image->resize();
+      $this->image->resize(-100, null);
     }, \Imager\InvalidArgumentException::class);
 
     Assert::exception(function() {
-      $this->image->resize(-100, null);
+      $this->image->resize(null, -100);
+    }, \Imager\InvalidArgumentException::class);
+
+    Assert::exception(function() {
+      $this->image->resize(null, null, -100);
+    }, \Imager\InvalidArgumentException::class);
+
+    Assert::exception(function () {
+      $this->image->resize(10000);
+    }, \Imager\InvalidArgumentException::class);
+
+    Assert::exception(function () {
+      $this->image->resize(null, 10000);
+    }, \Imager\InvalidArgumentException::class);
+
+    Assert::exception(function () {
+      $this->image->resize('201%');
+    }, \Imager\InvalidArgumentException::class);
+
+    Assert::exception(function () {
+      $this->image->resize(null, '201%');
     }, \Imager\InvalidArgumentException::class);
   }
 

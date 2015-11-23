@@ -42,23 +42,17 @@ class Route extends Application\Routers\Route
 
     $imgUrl = Strings::after($url->path, $this->basePath);
     $imgUrl = Strings::after($imgUrl, '/', -1);
-    $matches = Strings::match($imgUrl, '~^([^_]+)_?(\d*)x?(\d*)-?(\d*)(\.[a-z]+)$~i');
 
-    if (!isset($matches)) {
+    $parts = Imager\Helpers::parseName($imgUrl);
+
+    if (!isset($parts['id'])) {
       return;
     }
-    list(, $name, $width, $height, $quality, $ext) = $matches;
 
-    $id = $name . $ext;
-    $height = $height !== '' ? $height : null;
-    // if not defined width and height, then default size is original
-    $width = $width !== '' ? $width : (!isset($height) ? 0 : null);
-    $quality = $quality !== '' ? $quality : null;
-
-    $url->setQueryParameter('id', $id)
-        ->setQueryParameter('width', $width)
-        ->setQueryParameter('height', $height)
-        ->setQueryParameter('quality', $quality);
+    $url->setQueryParameter('id', $parts['id'])
+        ->setQueryParameter('width', $parts['width'])
+        ->setQueryParameter('height', $parts['height'])
+        ->setQueryParameter('quality', $parts['quality']);
 
     $response = new ImageResponse($this->repository, $this->imageFactory);
     $response->send(new Http\Request($url), new Http\Response);
@@ -78,22 +72,16 @@ class Route extends Application\Routers\Route
     }
 
     $parts = explode('.', $id);
+    // extension is on last position
     $extension = '.' . array_pop($parts);
+    // implode back for case that name contains dots
     $name = implode('.', $parts);
+
     $width = $request->getParameter('width');
     $height = $request->getParameter('height');
     $quality = $request->getParameter('quality');
 
-    $dimension = [
-        (isset($width) || isset($height) || isset($quality)) ? '_' : '',
-      $width,
-        (isset($height) || isset($quality)) ? 'x' : '',
-      $height,
-        (isset($quality)) ? '-' : '',
-      $quality,
-    ];
-
-    $dimension = implode('', $dimension);
+    $dimension = Imager\Helpers::createDimensionName($width, $height, $quality);
 
     return $this->basePath . Imager\Helpers::getSubPath($id) . $name . $dimension . $extension;
   }
