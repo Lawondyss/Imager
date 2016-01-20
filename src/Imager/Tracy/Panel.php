@@ -19,28 +19,30 @@ class Panel implements Tracy\IBarPanel
         <span id="imager-count"></span> <span id="imager-size"></span>
       </span>
       <script type="text/javascript">
-        var count = $("img[data-imager='index']").length;
-        $("#imager-count").text(count);
+        var images = document.querySelectorAll('img[data-imager="index"]');
+        var count = images.length;
         var totalSize = 0;
-        var images = $('img[data-imager="index"]');
-        $.each(images, function (index, image) {
-            $.ajax(image.src, {
-                method: 'HEAD',
-                async: false,
-                success: function (res, status, xhr) {
-                    var size = parseInt(xhr.getResponseHeader('Content-Length'));
-                    totalSize += size;
-                }
-            });
-        });
+        var http = new XMLHttpRequest();
+        http.onreadystatechange = function () {
+          if (http.readyState == http.DONE) {
+            totalSize += parseInt(http.getResponseHeader('Content-Length'));
+          }
+        };
+        for (i = 0; i < count; i++) {
+          var img = images[i];
+          http.open('HEAD', img.src, false);
+          http.send();
+        }
+
         var i = 0;
         while (totalSize >= 1024) {
-            totalSize /= 1024;
-            i++;
+          totalSize /= 1024;
+          i++;
         }
         var units = ['B', 'KB', 'MB', 'GB', 'TG'];
-        var size = Math.round(totalSize * 100) / 100 + ' ' + units[i]
-        $("#imager-size").text('(' + size + ')')
+        var size = Math.round(totalSize * 100) / 100 + ' ' + units[i];
+        document.querySelector('#imager-count').textContent = count;
+        document.querySelector('#imager-size').textContent = size;
       </script>
 TAB;
 
