@@ -2,7 +2,7 @@
   "name": "lawondyss/imager",
   "description": "The library for manage images and thumbnails. Library uses ImageMagick in command line.",
   "license": "MIT",
-  "version": "1.6",
+  "version": "1.6.1",
   "authors": [
     {
       "name": "Ladislav Vondráček",
@@ -16,7 +16,7 @@
     "classmap": ["src/Imager/exceptions.php"]
   },
   "require": {
-    "nette/utils": "2.3.*"
+    "nette/utils": "~2.3"
   },
   "require-dev": {
     "nette/tester": "1.6.*"
