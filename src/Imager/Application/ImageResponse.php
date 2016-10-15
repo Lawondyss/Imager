@@ -67,6 +67,8 @@ class ImageResponse implements IResponse
       $height = $height ?: 200;
       $this->sendError($response, $e, $width, $height);
     }
+
+    exit(0);
   }
 
 
